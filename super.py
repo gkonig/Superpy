@@ -4,25 +4,11 @@ from datetime import datetime, timedelta
 import os
 import sys
 # Internal imports
-from manager import buy, sell, list_products, report_expired_products, report_inventory, report_revenue, report_profit
+from manager import buy, sell, list_products, report_expired_products, report_inventory, report_revenue, report_profit, save_current_date_to_file, load_current_date_from_file
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
 __human_name__ = "main"
-
-# functions for reading and writing the current date
-DATE_FILE_PATH = 'current_date.txt'
-
-def save_current_date_to_file(current_date):
-    with open(DATE_FILE_PATH, 'w') as file:
-        file.write(current_date)
-
-def load_current_date_from_file():
-    try:
-        with open(DATE_FILE_PATH, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        return None
     
 # function for report
 def report(args):
@@ -36,26 +22,32 @@ def report(args):
         report_profit(args)
 
 def current_date(args):
-    # set the current date and save it to file
     try:
         today = datetime.strptime(args.current_date, '%Y-%m-%d').date()
-        datetime.now = lambda: datetime(today.year, today.month, today.day)
         save_current_date_to_file(args.current_date)
-        print(f"Current date set to {args.current_date}")
     except ValueError:
-        print("Invalid date format. Plase use 'YYYY-MM-DD'.")
+        print("Invalid date format. Please use 'YYYY-MM-DD'.")
+        sys.exit(1) # exit with an error code
 
 def advance_time(args):
     # advance the current date by the specified number of days and save it to the file
-    current_date = datetime.now().date()
-    new_date = current_date + timedelta(days=args.days)
-    datetime.now = lambda: datetime(new_date.year, new_date.month, new_date.day)
-    save_current_date_to_file(new_date.strftime('%Y-%m-%d'))
-    print(f"Current date advanced by {args.days} days to {new_date.strftime('%Y-%m-%d')}.")
+    try:
+        loaded_date = datetime.strptime(load_current_date_from_file(), '%Y-%m-%d').date()
+        new_date = loaded_date + timedelta(days=args.advance_time)
+        save_current_date_to_file(new_date.strftime('%Y-%m-%d'))
+        print(f"Current date advanced by {args.advance_time} days to {new_date.strftime('%Y-%m-%d')}.")
+    except ValueError:
+        print("Invalid date stored in file. Please use 'YYYY-MM-DD'.")
+        sys.exit(1) # exit with an error code
 
 # superpy main 
-def main(args):
+def main():
     parser = argparse.ArgumentParser(prog='superpy', description='Welcome to SuperPy - I am here to help you manage your inventory.')
+    
+    # adding argument directly to parser
+    parser.add_argument('--advance_time', type=int, help='Number of days to advance')
+    parser.set_defaults(func=advance_time)
+
     subparsers = parser.add_subparsers(help='Subcommands', dest='command')
 
     # subparser for buying a product
@@ -82,7 +74,8 @@ def main(args):
     # subparser for reports
     report_parser = subparsers.add_parser('report', help='Generate reports of expired products, inventory, revenue and profit.')
     report_parser.add_argument('report_type', choices=['expired', 'inventory', 'revenue', 'profit'], help='Type of report to generate')
-    report_parser.add_argument('--time_option', type=str, help='Time option for reports(yesterday, today, tomorrow, between YYYY-MM-DD and YYYY-MM-DD)')
+    report_parser.add_argument('--date', required=False, type=str, help='Time option for reports (YYYY-MM-DD) until current date')
+
     report_parser.set_defaults(func=report)
 
     # subparser to set the current date
@@ -90,33 +83,7 @@ def main(args):
     set_date_parser.add_argument('current_date', type=str, help='Set the current date (format: YYYY-MM-DD)')
     set_date_parser.set_defaults(func=current_date)
 
-    # subparser to advance time
-    advance_time_parser = subparsers.add_parser('advance_time', help='Advance the current date')
-    advance_time_parser.add_argument('days', type=int, help='Number of days to advance')
-    advance_time_parser.set_defaults(func=advance_time)
-
     args = parser.parse_args()
-
-    # load the current date from file
-    stored_current_date = load_current_date_from_file()
-
-    # set the date of today if provided
-    if args.current_date:
-        try:
-            today = datetime.strptime(args.current_date, '%Y-%m-%d').date()
-            datetime.now = lambda: datetime(today.year, today.month, today.day)
-            save_current_date_to_file(args.current_date)
-        except ValueError:
-            print("Invalid date format. Please use 'YYYY-MM-DD'.")
-            sys.exit(1) # exit with an error code
-    elif stored_current_date:
-        # set the date stored in the file
-        try:
-            today = datetime.strptime(stored_current_date, '%Y-%m-%d').date()
-            datetime.now = lambda: datetime(today.year, today.month, today.day)
-        except ValueError:
-            print("Invalid date stored in file. Please use 'YYYY-MM-DD'.")
-            sys.exit(1) # exit with an error code
     
     # advance time if commanded
     if hasattr(args, 'func'):
@@ -128,4 +95,4 @@ def main(args):
         parser.print_help()
         
 if __name__ == "__main__":
-    main(args)    
+    main()
