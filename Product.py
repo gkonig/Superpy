@@ -21,15 +21,13 @@ class Product:
     sell_price: Optional[float] = None
 
     # this function saves the products to the csv file
-    def save_to_csv(self):
+    def save_to_csv(self, filename: str):
         data = asdict(self)
-        print(data)
-        data['buy_date'] = data['buy_date'].strftime('%Y-%m-%d')
-        data['expiration_date'] = data['expiration_date'].strftime('%Y-%m-%d')
-        if data['sell_date']:
-            data['sell_date'] = data['sell_date'].strftime('%Y-%m-%d')
+        for key in data.keys():
+            if 'date' in key and data[key] is not None:
+                data[key] = data[key].strftime('%Y-%m-%d')
 
-        with open('inventory.csv', mode='a', newline='') as file:
+        with open(f'{filename}.csv', mode='a', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=data.keys())
 
             # Checks if the file is empty and writes header if needed
@@ -44,7 +42,7 @@ class Product:
         if self.sell_amount > self.buy_amount:
             raise ValueError ("Cannot sell more than available in inventory.")
         
-        self.save_to_csv()
+        self.save_to_csv('sales')
 
      # this function returns the buy method
     @classmethod
@@ -54,7 +52,7 @@ class Product:
         return cls(product_id=product_id, name=name, buy_price=buy_price, expiration_date=expiration_date, buy_amount=buy_amount, buy_date=buy_date)
 
     @staticmethod
-    def load_data_into_dataframe():
+    def load_data_into_dataframe(filename: str):
         try:
             columns = [
                 'Name', 'Buy Price', 'Expiration Date', 'Product ID', 'Buy Amount', 'Sell Amount', 'Buy Date', 'Sell Date', 'Sell Price'
@@ -62,7 +60,7 @@ class Product:
             date_columns = [
                 ['Buy Date', 'Expiration Date', 'Sell Date']
             ]
-            df = pd.read_csv('inventory.csv',
+            df = pd.read_csv(f'{filename}.csv',
                             names=columns, 
                             header=0, 
                             index_col='Product ID'

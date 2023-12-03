@@ -11,11 +11,11 @@ def buy(args):
     expiration_date = datetime.strptime(args.expiration_date, '%Y-%m-%d').date()
     buy_date = datetime.strptime(args.buy_date, '%Y-%m-%d').date() if args.buy_date else datetime.now().date()
     product = Product.buy(args.name, args.buy_price, expiration_date, args.buy_amount, buy_date)
-    product.save_to_csv()
+    product.save_to_csv('purchases')
 
 # function to sell a product
 def sell(args):
-    df = Product.load_data_into_dataframe()
+    df = Product.load_data_into_dataframe('purchases')
     if args.id not in df.index:
         print(f'Product with ID {args.id} not found.')
         return
@@ -42,8 +42,8 @@ def sell(args):
 
 # function to list all products in inventory
 def list_products(args):
-    df = Product.load_data_into_dataframe()
-    print(df)
+    purchases = Product.load_data_into_dataframe('purchases')
+    sales = Product.load_data_into_dataframe('sales')
 
 # function to report all expired products
 def report_expired_products(args):
@@ -73,21 +73,24 @@ def report_expired_products(args):
     
 # function to report inventory
 def report_inventory(args):
-    df = Product.load_data_into_dataframe()
+    purchases = Product.load_data_into_dataframe('purchases')
+    sales = Product.load_data_into_dataframe('sales')
+    sold_ids = sales.index.values.tolist()
+    inventory = purchases[~purchases.index.isin(sold_ids)]
     print("Current inventory:")
-    print(df.fillna('-'))
+    print(inventory.fillna('-'))
 
 # function to report revenue
 def report_revenue(args):
     input_date = datetime.strptime(args.date, '%Y-%m-%d').date() if args.date else pd.Timestamp.min
     total_revenue = calculate_revenue(input_date)
-    print(f'Total revenue is: {total_revenue}')
+    print(f'Total revenue is: {round(total_revenue,2)}')
 
 # function to report profit
 def report_profit(args):
     input_date = datetime.strptime(args.date, '%Y-%m-%d').date() if args.date else pd.Timestamp.min
     total_profit = (calculate_revenue(input_date) - calculate_loss(input_date))
-    print(f'Total profit is: {total_profit}')
+    print(f'Total profit is: {round(total_profit,2)}')
 
 def save_current_date_to_file(current_date) -> None:
     with open(DATE_FILE_PATH, 'w') as file:
@@ -102,7 +105,7 @@ def load_current_date_from_file() -> date:
     
 
 def calculate_revenue(initial_date):
-    sold_inventory_df = Product.load_data_into_dataframe()[['Sell Date', 'Sell Price']].dropna()
+    sold_inventory_df = Product.load_data_into_dataframe('sales')[['Sell Date', 'Sell Price']].dropna()
     loaded_date = load_current_date_from_file()
     current_date = loaded_date if loaded_date else datetime.now().date()
     if sold_inventory_df.empty:
@@ -119,7 +122,7 @@ def calculate_revenue(initial_date):
     return total_revenue
 
 def calculate_loss(initial_date):
-    bought_inventory_df = Product.load_data_into_dataframe()[['Buy Date', 'Buy Price']].dropna()
+    bought_inventory_df = Product.load_data_into_dataframe('purchases')[['Buy Date', 'Buy Price']].dropna()
     loaded_date = load_current_date_from_file()
     current_date = loaded_date if loaded_date else datetime.now().date()
     if bought_inventory_df.empty:

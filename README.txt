@@ -34,14 +34,14 @@ Selling products
 
         python super.py sell --id 718fca8b-c6cd-4a87-abab-515a26b869d0 --sell_amount 20 --sell_date 2023-11-29 --sell_price 2.2
 
-    The data will be stored in inventory.csv next to the columns of the respective bought product.
+    The data will be stored in purchases.csv next to the columns of the respective bought product.
 
 Setting the time:
 
-    In current_date.txt the current is stored. This can be changed.
+    In current_date.txt the current is stored. This can be changed. 
     
-    You can change the current date with the following optional commands:
-        '--set_date'        With this command you can set the current date manually in format YYYY-MM-DD.
+    After the 'set_time' command you can change the current date with the following optional commands:
+        'set_date'        With this command you can set the current date manually in format YYYY-MM-DD.
         '--advance_time'    Follow the command with the amount of days you which to advance.
     
     For example, if the current date should be the 15th of December of 2023 then:

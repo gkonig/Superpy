@@ -32,7 +32,7 @@ def current_date(args):
 def advance_time(args):
     # advance the current date by the specified number of days and save it to the file
     try:
-        loaded_date = datetime.strptime(load_current_date_from_file(), '%Y-%m-%d').date()
+        loaded_date = load_current_date_from_file()
         new_date = loaded_date + timedelta(days=args.advance_time)
         save_current_date_to_file(new_date.strftime('%Y-%m-%d'))
         print(f"Current date advanced by {args.advance_time} days to {new_date.strftime('%Y-%m-%d')}.")
