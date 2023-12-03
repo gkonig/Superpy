@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import os
 import sys
 # Internal imports
-from manager import buy, sell, list_products, report_expired_products, report_inventory, report_revenue, report_profit, save_current_date_to_file, load_current_date_from_file
+from manager import buy, sell, report_inventory, report_revenue, report_profit, save_current_date_to_file, load_current_date_from_file
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -12,9 +12,9 @@ __human_name__ = "main"
     
 # function for report
 def report(args):
-    if args.report_type == 'expired':
-        report_expired_products(args)
-    elif args.report_type == 'inventory':
+    #if args.report_type == 'expired':
+        #report_expired_products(args)
+    if args.report_type == 'inventory':
         report_inventory(args)
     elif args.report_type == 'revenue':
         report_revenue(args)
@@ -66,10 +66,6 @@ def main():
     sell_parser.add_argument('--sell_date', type=str, help='Product sell date (format: YYYY-MM-DD)')
     sell_parser.add_argument('--sell_price', type=float, required=True, help='Product sell price')
     sell_parser.set_defaults(func=sell)
-
-    # subparser for listing all of the products
-    list_parser = subparsers.add_parser('list', help='List all products')
-    list_parser.set_defaults(func=list_products)
 
     # subparser for reports
     report_parser = subparsers.add_parser('report', help='Generate reports of expired products, inventory, revenue and profit.')

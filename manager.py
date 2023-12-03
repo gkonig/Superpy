@@ -40,36 +40,12 @@ def sell(args):
         )
     product_obj.sell()
 
-# function to list all products in inventory
-def list_products(args):
-    purchases = Product.load_data_into_dataframe('purchases')
-    sales = Product.load_data_into_dataframe('sales')
-
-# function to report all expired products
+function to report all expired products
 def report_expired_products(args):
-    df = Product.load_data_into_dataframe()
-    current_date = args.current_date if args.current_date else datetime.now().date()
-    
-    if args.time_option:
-        now = datetime.date.today()
-        if args.time_option == 'yesterday':
-            expired_products = df[df['Expiration date'] < current_date - timedelta(days=1)]
-        elif args.time_option == 'now':
-            expired_products = df[df['Expiration date'] < current_date]
-        elif args.time_option == 'tomorrow':
-            expired_products = df[df['Expiration date'] < current_date + timedelta(days=1)]
-        elif args.time_option.startswith('between'):
-            start, end = map(datetime.strptime.strptime, args.time_option.split(' ')[1:], ['%Y-%m-%d', '%Y-%m-%d'])
-            expired_products = df[(df['Expiration date'] >= start.date()) & (df['Expiration date'] <= end.date())]
-    
-    else:
-        expired_products = df[df['Expiration date'] < current_date]
-    
-    if expired_products.empty:
-        print("There are no expired products.")
-    else:
-        print("The following products have expired:")
-        print(expired_products[['Name', 'Amount bought', 'Expiration date']])
+    #load_inventory = report_inventory
+    #input_date = datetime.strptime(args.date, '%Y-%m-%d').date() if args.date else pd.Timestamp.min
+    #try:
+        #if input_date > 
     
 # function to report inventory
 def report_inventory(args):
@@ -79,6 +55,7 @@ def report_inventory(args):
     inventory = purchases[~purchases.index.isin(sold_ids)]
     print("Current inventory:")
     print(inventory.fillna('-'))
+    print(pd.DataFrame('purchases'))
 
 # function to report revenue
 def report_revenue(args):
@@ -102,7 +79,22 @@ def load_current_date_from_file() -> date:
             return datetime.strptime(file.read().strip(), '%Y-%m-%d').date()
     except FileNotFoundError:
         return None
-    
+
+def check_expiration_date(initial_date):
+    sold_products_df = Product.load_data_into_dataframe('sales')[['Expiration Date']].dropna()
+    loaded_date = load_current_date_from_file()
+    current_date = loaded_date if loaded_date else datetime.now().date()
+    if sold_products_df.empty:
+        expired_products = 0
+    else:
+        expired_inventory_df = sold_products_df[
+            (
+                sold_products_df['Expiration Date'] > pd.to_datetime(initial_date)
+            ) & (sold_products_df['Expiration Date'] < pd.to_datetime(current_date)
+            )
+            ]
+        expired_products = expired_inventory_df['Expiration Date']
+    return expired_products
 
 def calculate_revenue(initial_date):
     sold_inventory_df = Product.load_data_into_dataframe('sales')[['Sell Date', 'Sell Price']].dropna()

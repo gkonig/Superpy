@@ -40,8 +40,10 @@ Setting the time:
 
     In current_date.txt the current is stored. This can be changed. 
     
-    After the 'set_time' command you can change the current date with the following optional commands:
+    With the following command you can change the current data:
         'set_date'        With this command you can set the current date manually in format YYYY-MM-DD.
+
+    Otherwise you can just advance time with the folloring command:
         '--advance_time'    Follow the command with the amount of days you which to advance.
     
     For example, if the current date should be the 15th of December of 2023 then:
