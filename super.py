@@ -12,8 +12,6 @@ __human_name__ = "main"
     
 # function for report
 def report(args):
-    #if args.report_type == 'expired':
-        #report_expired_products(args)
     if args.report_type == 'inventory':
         report_inventory(args)
     elif args.report_type == 'revenue':
@@ -68,8 +66,8 @@ def main():
     sell_parser.set_defaults(func=sell)
 
     # subparser for reports
-    report_parser = subparsers.add_parser('report', help='Generate reports of expired products, inventory, revenue and profit.')
-    report_parser.add_argument('report_type', choices=['expired', 'inventory', 'revenue', 'profit'], help='Type of report to generate')
+    report_parser = subparsers.add_parser('report', help='Generate reports of inventory, revenue and profit.')
+    report_parser.add_argument('report_type', choices=['inventory', 'revenue', 'profit'], help='Type of report to generate')
     report_parser.add_argument('--date', required=False, type=str, help='Time option for reports (YYYY-MM-DD) until current date')
 
     report_parser.set_defaults(func=report)

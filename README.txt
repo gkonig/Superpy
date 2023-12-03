@@ -1,7 +1,7 @@
 Welcome to Superpy
 
 All commands are operated with the command line. In this file you can find the commands you can use.
-They are organised under four different categories, such as:
+They are organized under four different categories, such as:
 
 Buying products
 
@@ -43,7 +43,7 @@ Setting the time:
     With the following command you can change the current data:
         'set_date'        With this command you can set the current date manually in format YYYY-MM-DD.
 
-    Otherwise you can just advance time with the folloring command:
+    Otherwise you can just advance time with the following command:
         '--advance_time'    Follow the command with the amount of days you which to advance.
     
     For example, if the current date should be the 15th of December of 2023 then:
@@ -59,21 +59,20 @@ Reports:
     With 'report' it's possible to get different types of reports. 
     The choices are 'expired', 'inventory', 'revenue' and 'profit'.
 
-        'expired'           Returns a list of expired products.
-        'inventory'         Returns a list of all expired products.
+        'inventory'         Returns a list of all products.
         'revenue'           Returns the revenue.
         'profit'            Returns the profit.
 
-    For these reports a date should be specifief with the command '--date'.
+    For these reports a date can be specified with the command '--date'.
 
         '--date'            Follow the command with a date in format YYYY-MM-DD.
 
     Example:
 
-        python super.py expired --date
+        python super.py report revenue --date
 
 Additional guidance commands:
 
-    python super.py -h
-    python super.py buy --help
-    python super.py report revenue --help
+        python super.py -h
+        python super.py buy --help
+        python super.py report revenue --help

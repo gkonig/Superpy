@@ -44,7 +44,7 @@ class Product:
         
         self.save_to_csv('sales')
 
-     # this function returns the buy method
+    # this function returns the buy method
     @classmethod
     def buy(cls, name, buy_price, expiration_date,  buy_amount=1, buy_date=None):
         product_id = uuid.uuid4() # generate a new UUID

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, date
 from Product import Product
 import pandas as pd
 
-# functions for reading and writing the current date
+# current date file path
 DATE_FILE_PATH = 'current_date.txt'
 
 # function to buy a product
@@ -39,14 +39,7 @@ def sell(args):
         sell_price=args.sell_price
         )
     product_obj.sell()
-
-function to report all expired products
-def report_expired_products(args):
-    #load_inventory = report_inventory
-    #input_date = datetime.strptime(args.date, '%Y-%m-%d').date() if args.date else pd.Timestamp.min
-    #try:
-        #if input_date > 
-    
+ 
 # function to report inventory
 def report_inventory(args):
     purchases = Product.load_data_into_dataframe('purchases')
@@ -69,10 +62,12 @@ def report_profit(args):
     total_profit = (calculate_revenue(input_date) - calculate_loss(input_date))
     print(f'Total profit is: {round(total_profit,2)}')
 
+# function to save the current date
 def save_current_date_to_file(current_date) -> None:
     with open(DATE_FILE_PATH, 'w') as file:
         file.write(current_date)
 
+# function to load the current date
 def load_current_date_from_file() -> date:
     try:
         with open(DATE_FILE_PATH, 'r') as file:
@@ -80,22 +75,7 @@ def load_current_date_from_file() -> date:
     except FileNotFoundError:
         return None
 
-def check_expiration_date(initial_date):
-    sold_products_df = Product.load_data_into_dataframe('sales')[['Expiration Date']].dropna()
-    loaded_date = load_current_date_from_file()
-    current_date = loaded_date if loaded_date else datetime.now().date()
-    if sold_products_df.empty:
-        expired_products = 0
-    else:
-        expired_inventory_df = sold_products_df[
-            (
-                sold_products_df['Expiration Date'] > pd.to_datetime(initial_date)
-            ) & (sold_products_df['Expiration Date'] < pd.to_datetime(current_date)
-            )
-            ]
-        expired_products = expired_inventory_df['Expiration Date']
-    return expired_products
-
+# function to calculate the revenue
 def calculate_revenue(initial_date):
     sold_inventory_df = Product.load_data_into_dataframe('sales')[['Sell Date', 'Sell Price']].dropna()
     loaded_date = load_current_date_from_file()
@@ -113,6 +93,7 @@ def calculate_revenue(initial_date):
         total_revenue = dated_sold_inventory_df['Sell Price'].sum()
     return total_revenue
 
+# function to calculate losses
 def calculate_loss(initial_date):
     bought_inventory_df = Product.load_data_into_dataframe('purchases')[['Buy Date', 'Buy Price']].dropna()
     loaded_date = load_current_date_from_file()

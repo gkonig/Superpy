@@ -1,12 +1,63 @@
-To do this assignment as concise and organized as possible I implemented a couple of extra technical elements that also make the coding experience more enjoyable. Although I might have overshot myself with the difficulty level of these extra's. So quite some things don't work as they should.
+To do this assignment as concise and organized as possible I implemented a couple of extra technical elements which also make the coding experience more enjoyable. Although I might have overshot myself with the difficulty level of these extra's (namely pandas and dataclasses) and ended up having to keep the functionality of the CLI quite simple to be able to finish the assignment within the given timeframe.
 
-### 01. INVENTORY AS SINGLE FILE
+### 01. MANAGING THE CSV FILES
 
-I wanted to have the data as a single list, since that is how the information is viewed. When a product is acquired there is certain data assigned to it. In this case specifically: id, name, amount bought, expiration date, price and date of acquisition. When the product is eventually sold, if it doesn't expire beforehand, it's still the same product but it gets additional data assigned to it. Such as amount sold, selling price and selling date. 
+When setting up the csv files with the product data, instead of having two separate files about the same product but with separate data other than the unique id number, I created the class product already with the sale columns which stay empty in the purchases.csv file. Until the product is sold, then pandas will take the data from the purchases.csv and write it in the sales.csv with the added sales data. 
 
-Here is where I didn't consider that this probably requires a far more complex code than what I can do right now, since if the all the amount bought isn't also sold in one go the registry won't be complete anymore. In hindsight this was not the most efficient setup to use. 
+Examples of the data in the csv files:
 
-Since when selling it actually adds a new product with all the bought data, this will then skew all the data for the reports. With more time I would change is into two csv files for bought and sold, and would change the code to accommodate this change.
+Purchases.csv 
+```
+name,buy_price,expiration_date,product_id,buy_amount,sell_amount,buy_date,sell_date,sell_price
+banana,1.0,2023-11-12,99aaa2cd-b20f-49fe-8706-b60a9a7fd397,10,,2023-11-05,,
+```
+
+Sales.csv
+
+```
+name,buy_price,expiration_date,product_id,buy_amount,sell_amount,buy_date,sell_date,sell_price
+banana,1.0,2023-11-12,99aaa2cd-b20f-49fe-8706-b60a9a7fd397,10,5,2023-11-05,2023-11-10,2.0
+```
+This in return made it easier to make the calculations for the reports, as seen in the example below:
+
+```
+# function to calculate the revenue
+def calculate_revenue(initial_date):
+    sold_inventory_df = Product.load_data_into_dataframe('sales')[['Sell Date', 'Sell Price']].dropna()
+    loaded_date = load_current_date_from_file()
+    current_date = loaded_date if loaded_date else datetime.now().date()
+    if sold_inventory_df.empty:
+        total_revenue = 0
+    else:
+        dated_sold_inventory_df = sold_inventory_df[
+            (
+                sold_inventory_df['Sell Date'] > pd.to_datetime(initial_date)
+            ) & (
+                sold_inventory_df['Sell Date'] < pd.to_datetime(current_date)
+            )
+            ]
+        total_revenue = dated_sold_inventory_df['Sell Price'].sum()
+    return total_revenue
+
+# function to calculate losses
+def calculate_loss(initial_date):
+    bought_inventory_df = Product.load_data_into_dataframe('purchases')[['Buy Date', 'Buy Price']].dropna()
+    loaded_date = load_current_date_from_file()
+    current_date = loaded_date if loaded_date else datetime.now().date()
+    if bought_inventory_df.empty:
+        total_loss = 0
+    else:
+        dated_sold_inventory_df = bought_inventory_df[
+            (
+                bought_inventory_df['Buy Date'] > pd.to_datetime(initial_date)
+            ) & (
+                bought_inventory_df['Buy Date'] < pd.to_datetime(current_date)
+            )
+            ]
+        total_loss = dated_sold_inventory_df['Buy Price'].sum()
+    return total_loss
+
+```
 
 ### 02. DATACLASSES AND STATIC TYPING
 
@@ -30,29 +81,3 @@ class Product:
     sell_price: Optional[float] = None
 
 ```
-
-```
- @staticmethod
-    def load_data_into_dataframe():
-        try:
-            columns = [
-                'Name', 'Buy Price', 'Expiration Date', 'Product ID', 'Buy Amount', 'Sell Amount', 'Buy Date', 'Sell Date', 'Sell Price'
-            ]
-            date_columns = [
-                ['Buy Date', 'Expiration Date', 'Sell Date']
-            ]
-            df = pd.read_csv('inventory.csv',
-                            names=columns, 
-                            header=0, 
-                            index_col='Product ID'
-            )
-            df[['Buy Date', 'Expiration Date', 'Sell Date']] = df[['Buy Date', 'Expiration Date', 'Sell Date']].apply(pd.to_datetime)
-            return df
-        except FileNotFoundError:
-            print("CSV file not found. Returning an empty DataFrame.")
-            return pd.DataFrame()
-```
-
-### 03. PANDAS
-
-I found that returning the data from csv files wasn't easily understandable therefore using pandas seemed like the logical choice. Pandas is also better at managing and doing operations on the data, which seemed ideal for the report calculations. It was quite challenging to find how pandas stores some data and what code implementations are necessary to then be able to manipulate this data. Like the case with dates. The input is in datetime, which then pandas stores as datetime64 dtype in the DataFrame and then has to be converted back into datetime for comparison purposes.
