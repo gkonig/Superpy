@@ -2,26 +2,26 @@ To do this assignment as concise and organized as possible I implemented a coupl
 
 ### 01. MANAGING THE CSV FILES
 
-When setting up the csv files with the product data, instead of having two separate files about the same product but with separate data other than the unique id number, I created the class product already with the sale columns which stay empty in the purchases.csv file. Until the product is sold, then pandas will take the data from the purchases.csv and write it in the sales.csv with the added sales data. 
+When setting up the csv files with the product data, instead of having two separate files about the same product but with separate data other than the unique id number, I created the class *Product* already with the sale columns which stay empty in the *purchases.csv* file. Until the product is sold, then pandas will take the data from the *purchases.csv* and write it in the *sales.csv* with the added sales data. 
 
 Examples of the data in the csv files:
 
-Purchases.csv 
+**Purchases.csv** 
 ```
-name,buy_price,expiration_date,product_id,buy_amount,sell_amount,buy_date,sell_date,sell_price
-banana,1.0,2023-11-12,99aaa2cd-b20f-49fe-8706-b60a9a7fd397,10,,2023-11-05,,
+name,buy_price,expiration_date,product_id,buy_date,sell_date,sell_price
+banana,1.0,2023-11-12,99aaa2cd-b20f-49fe-8706-b60a9a7fd397,2023-11-05,,
 ```
 
-Sales.csv
+**Sales.csv**
 
 ```
-name,buy_price,expiration_date,product_id,buy_amount,sell_amount,buy_date,sell_date,sell_price
-banana,1.0,2023-11-12,99aaa2cd-b20f-49fe-8706-b60a9a7fd397,10,5,2023-11-05,2023-11-10,2.0
+name,buy_price,expiration_date,product_id,buy_date,sell_date,sell_price
+banana,1.0,2023-11-12,99aaa2cd-b20f-49fe-8706-b60a9a7fd397,2023-11-05,2023-11-10,2.0
 ```
 This in return made it easier to make the calculations for the reports, as seen in the example below:
 
 ```
-# function to calculate the revenue
+# function to calculate the revenue(used in revenue and profit)
 def calculate_revenue(initial_date):
     sold_inventory_df = Product.load_data_into_dataframe('sales')[['Sell Date', 'Sell Price']].dropna()
     loaded_date = load_current_date_from_file()
@@ -31,15 +31,15 @@ def calculate_revenue(initial_date):
     else:
         dated_sold_inventory_df = sold_inventory_df[
             (
-                sold_inventory_df['Sell Date'] > pd.to_datetime(initial_date)
+                sold_inventory_df['Sell Date'] > pd.to_datetime(initial_date).date()
             ) & (
-                sold_inventory_df['Sell Date'] < pd.to_datetime(current_date)
+                sold_inventory_df['Sell Date'] < pd.to_datetime(current_date).date()
             )
             ]
         total_revenue = dated_sold_inventory_df['Sell Price'].sum()
     return total_revenue
 
-# function to calculate losses
+# function to claculate the loss (used in profit)
 def calculate_loss(initial_date):
     bought_inventory_df = Product.load_data_into_dataframe('purchases')[['Buy Date', 'Buy Price']].dropna()
     loaded_date = load_current_date_from_file()
@@ -49,9 +49,9 @@ def calculate_loss(initial_date):
     else:
         dated_sold_inventory_df = bought_inventory_df[
             (
-                bought_inventory_df['Buy Date'] > pd.to_datetime(initial_date)
+                bought_inventory_df['Buy Date'] > pd.to_datetime(initial_date).date()
             ) & (
-                bought_inventory_df['Buy Date'] < pd.to_datetime(current_date)
+                bought_inventory_df['Buy Date'] < pd.to_datetime(current_date).date()
             )
             ]
         total_loss = dated_sold_inventory_df['Buy Price'].sum()
@@ -74,10 +74,14 @@ class Product:
     buy_price: float
     expiration_date: date
     product_id: UUID = field(default_factory=UUID)    
-    buy_amount: int = 1 # quantity of products bought / to buy
-    sell_amount: Optional[int] = None# quantity of products sold / to sell
     buy_date: Optional[date] = None    
     sell_date: Optional[date] = None
     sell_price: Optional[float] = None
 
 ```
+
+### 03. PANDAS
+
+I found that returning the data from csv files wasn't easily understandable therefore using pandas seemed like the logical choice. Pandas is also better at managing and doing operations on the data, which seemed ideal for the report calculations. It was quite challenging to find how pandas stores some data and what code implementations are necessary to then be able to manipulate this data. Like the case with dates. The input is in datetime, which then pandas stores as datetime64 dtype in the DataFrame and then has to be converted back into datetime for comparison purposes.
+
+The advantage is that pandas already has a lot of integrated features to manage and display data, so it's worth the struggle to learn it.

@@ -66,13 +66,25 @@ Reports:
 
         '--date'            Follow the command with a date in format YYYY-MM-DD.
 
-Export json:
-
-        $ python super.py export --json purchases.json purchases
-
     Example:
 
         python super.py report revenue --date
+
+Export json:
+
+    To have the purchases and sales recorded as json files in addition to csv there is the 'export' command.
+    The choices are 'purchases' or 'sales' to export the respective dataframe.
+
+        '--json'                        Specifies that it's a json export.
+
+            "'filename'.json"           To specify the desired filename.
+
+                    'purchases'         Exports 'purchases.csv' as a json file.
+                    'sales'             Exports 'sales.csv' as a json file.
+
+    Example:
+
+        python super.py export --json purchases.json purchases
 
 Additional guidance commands:
 
