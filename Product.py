@@ -51,17 +51,14 @@ class Product:
             columns = [
                 'Name', 'Buy Price', 'Expiration Date', 'Product ID', 'Buy Date', 'Sell Date', 'Sell Price'
             ]
-            date_columns = [
-                ['Buy Date', 'Expiration Date', 'Sell Date']
-            ]
+            date_columns = ['Buy Date', 'Expiration Date', 'Sell Date']
             df = pd.read_csv(f'{filename}.csv',
-                            names=columns, 
-                            header=0, 
+                            names=columns,
+                            header=0,
                             index_col='Product ID'
             )
-            #df[['Buy Date', 'Expiration Date', 'Sell Date']] = df[['Buy Date', 'Expiration Date', 'Sell Date']].apply(pd.to_datetime)
-            #df[['Buy Date', 'Expiration Date', 'Sell Date']] = pd.to_datetime(df[['Buy Date', 'Expiration Date', 'Sell Date']], format='%y%m%d')
-            df[['Buy Date', 'Expiration Date', 'Sell Date']] = df[['Buy Date', 'Expiration Date', 'Sell Date']].apply(pd.to_datetime(format='%y%m%d'))
+            for date in date_columns:
+                df[date] = pd.to_datetime(df[date], format='%Y-%m-%d').dt.date
             return df
         except FileNotFoundError:
             print("CSV file not found. Returning an empty DataFrame.")

@@ -66,6 +66,10 @@ Reports:
 
         '--date'            Follow the command with a date in format YYYY-MM-DD.
 
+Export json:
+
+        $ python super.py export --json purchases.json purchases
+
     Example:
 
         python super.py report revenue --date

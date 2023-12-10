@@ -87,7 +87,7 @@ def to_json(args):
         data_type = args.data_type
         json_filename = args.json_path
         data = Product.load_data_into_dataframe(data_type)
-        data.to_json(json_filename, orient='records')
+        data.to_json(json_filename, orient='records', date_format='iso')
         print(f"The file {json_filename} has been exported with the {data_type} data.")
     except Exception as e:
         print('An error occured while trying to export data.')
@@ -115,9 +115,9 @@ def calculate_revenue(initial_date):
     else:
         dated_sold_inventory_df = sold_inventory_df[
             (
-                sold_inventory_df['Sell Date'] > pd.to_datetime(initial_date)
+                sold_inventory_df['Sell Date'] > pd.to_datetime(initial_date).date()
             ) & (
-                sold_inventory_df['Sell Date'] < pd.to_datetime(current_date)
+                sold_inventory_df['Sell Date'] < pd.to_datetime(current_date).date()
             )
             ]
         total_revenue = dated_sold_inventory_df['Sell Price'].sum()
@@ -133,9 +133,9 @@ def calculate_loss(initial_date):
     else:
         dated_sold_inventory_df = bought_inventory_df[
             (
-                bought_inventory_df['Buy Date'] > pd.to_datetime(initial_date)
+                bought_inventory_df['Buy Date'] > pd.to_datetime(initial_date).date()
             ) & (
-                bought_inventory_df['Buy Date'] < pd.to_datetime(current_date)
+                bought_inventory_df['Buy Date'] < pd.to_datetime(current_date).date()
             )
             ]
         total_loss = dated_sold_inventory_df['Buy Price'].sum()
