@@ -15,13 +15,6 @@ def buy(args):
     product.save_to_csv('purchases')
     print(f'Purchase sucessfull.')
 
-# function to export the purchases dataframe to json
-def purchases_json(args):
-    purchases = Product.load_data_into_dataframe('purchases')
-    json_filename = 'purchases.json'
-    print(f"The file 'purchases' is now also save as json format.")
-    print(purchases.to_json(json_filename, orient='records'))
-
 # function to sell a product
 def sell(args):
     df = Product.load_data_into_dataframe('purchases')
@@ -48,13 +41,6 @@ def sell(args):
     product_obj.sell()
     print(f'Product sold sucessfully.')
 
-# function to export the sales dataframe to json
-def sales_json(args):
-    sales = Product.load_data_into_dataframe('sales')
-    json_filename = 'sales.json'
-    print(f"The file 'sales' is now also save as json format.")
-    print(sales.to_json(json_filename, orient='records'))
-
 # function to list all products
 def list_products(args):
     purchases = Product.load_data_into_dataframe('purchases')
@@ -65,8 +51,9 @@ def report_ledger(args):
     purchases = Product.load_data_into_dataframe('purchases')
     sales = Product.load_data_into_dataframe('sales')
     ledger = pd.concat([purchases, sales], axis=0)
+    ledger = ledger.fillna('-')
     print("Current ledger:")
-    print(ledger.fillna('-'))
+    print(ledger.to_markdown(tablefmt="pretty"))
 
 # function to report inventory
 def report_inventory(args):
@@ -93,6 +80,17 @@ def report_profit(args):
     input_date = datetime.strptime(args.date, '%Y-%m-%d').date() if args.date else pd.Timestamp.min
     total_profit = (calculate_revenue(input_date) - calculate_loss(input_date))
     print(f'Total profit is: {round(total_profit,2)}')
+
+# function to export the sales dataframe to json
+def to_json(args):
+    try:
+        data_type = args.data_type
+        json_filename = args.json_path
+        data = Product.load_data_into_dataframe(data_type)
+        data.to_json(json_filename, orient='records')
+        print(f"The file {json_filename} has been exported with the {data_type} data.")
+    except Exception as e:
+        print('An error occured while trying to export data.')
 
 # function to save the current date to the file
 def save_current_date_to_file(current_date) -> None:

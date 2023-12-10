@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import os
 import sys
 # Internal imports
-from manager import buy, sell, report_ledger, report_inventory, report_revenue, report_profit, save_current_date_to_file, load_current_date_from_file, list_products, purchases_json, sales_json
+from manager import buy, sell, report_ledger, report_inventory, report_revenue, report_profit, save_current_date_to_file, load_current_date_from_file, list_products, to_json
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
@@ -12,10 +12,7 @@ __human_name__ = "main"
 
 # function to export a json file
 def export_to_json(args):
-    if args.data_type == 'purchases':
-        purchases_json(args)
-    elif args.data_type == 'sales':
-        sales_json(args)
+    to_json(args)
 
 # functions for report
 def report(args):
@@ -83,11 +80,11 @@ def main():
     set_date_parser.add_argument('current_date', type=str, help='Set the current date (format: YYYY-MM-DD)')
     set_date_parser.set_defaults(func=current_date)
 
-#    # exporting to json format
-#    export_parser = subparsers.add_parser('export', help='Export the dataframes into json files')
-#    export_parser.add_argument('data_type', choices=['purchases', 'sales'], help=('Which data do you wish to export: purchases or sales?'))
-#    export_parser.add_argument('--jason', dest='json_path', required=True, help='Export the file to json format.')
-#    parser.add_argument(func=export_to_json)
+    # exporting to json format
+    export_parser = subparsers.add_parser('export', help='Export the dataframes into json files')
+    export_parser.add_argument('data_type', choices=['purchases', 'sales'], help=('Which data do you wish to export: purchases or sales?'))
+    export_parser.add_argument('--json', dest='json_path', required=True, help='Export the file to json format.')
+    export_parser.set_defaults(func=export_to_json)
 
     args = parser.parse_args()
     

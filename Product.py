@@ -59,7 +59,9 @@ class Product:
                             header=0, 
                             index_col='Product ID'
             )
-            df[['Buy Date', 'Expiration Date', 'Sell Date']] = df[['Buy Date', 'Expiration Date', 'Sell Date']].apply(pd.to_datetime)
+            #df[['Buy Date', 'Expiration Date', 'Sell Date']] = df[['Buy Date', 'Expiration Date', 'Sell Date']].apply(pd.to_datetime)
+            #df[['Buy Date', 'Expiration Date', 'Sell Date']] = pd.to_datetime(df[['Buy Date', 'Expiration Date', 'Sell Date']], format='%y%m%d')
+            df[['Buy Date', 'Expiration Date', 'Sell Date']] = df[['Buy Date', 'Expiration Date', 'Sell Date']].apply(pd.to_datetime(format='%y%m%d'))
             return df
         except FileNotFoundError:
             print("CSV file not found. Returning an empty DataFrame.")
