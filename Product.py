@@ -14,8 +14,6 @@ class Product:
     buy_price: float
     expiration_date: date
     product_id: UUID = field(default_factory=UUID)    
-    buy_amount: int = 1 # quantity of products bought / to buy
-    sell_amount: Optional[int] = None# quantity of products sold / to sell
     buy_date: Optional[date] = None    
     sell_date: Optional[date] = None
     sell_price: Optional[float] = None
@@ -37,25 +35,21 @@ class Product:
             writer.writerow(data)
 
     # this function returns the sell method
-    def sell(self):
-
-        if self.sell_amount > self.buy_amount:
-            raise ValueError ("Cannot sell more than available in inventory.")
-        
+    def sell(self):      
         self.save_to_csv('sales')
 
-    # this function returns the buy method
+     # this function returns the buy method
     @classmethod
-    def buy(cls, name, buy_price, expiration_date,  buy_amount=1, buy_date=None):
+    def buy(cls, name, buy_price, expiration_date,  buy_date=None):
         product_id = uuid.uuid4() # generate a new UUID
         buy_date = buy_date or datetime.now().date()
-        return cls(product_id=product_id, name=name, buy_price=buy_price, expiration_date=expiration_date, buy_amount=buy_amount, buy_date=buy_date)
+        return cls(product_id=product_id, name=name, buy_price=buy_price, expiration_date=expiration_date, buy_date=buy_date)
 
     @staticmethod
     def load_data_into_dataframe(filename: str):
         try:
             columns = [
-                'Name', 'Buy Price', 'Expiration Date', 'Product ID', 'Buy Amount', 'Sell Amount', 'Buy Date', 'Sell Date', 'Sell Price'
+                'Name', 'Buy Price', 'Expiration Date', 'Product ID', 'Buy Date', 'Sell Date', 'Sell Price'
             ]
             date_columns = [
                 ['Buy Date', 'Expiration Date', 'Sell Date']

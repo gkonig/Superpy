@@ -4,16 +4,25 @@ from datetime import datetime, timedelta
 import os
 import sys
 # Internal imports
-from manager import buy, sell, report_inventory, report_revenue, report_profit, save_current_date_to_file, load_current_date_from_file
+from manager import buy, sell, report_ledger, report_inventory, report_revenue, report_profit, save_current_date_to_file, load_current_date_from_file, list_products, purchases_json, sales_json
 
 # Do not change these lines.
 __winc_id__ = "a2bc36ea784242e4989deb157d527ba0"
 __human_name__ = "main"
-    
-# function for report
+
+# function to export a json file
+def export_to_json(args):
+    if args.data_type == 'purchases':
+        purchases_json(args)
+    elif args.data_type == 'sales':
+        sales_json(args)
+
+# functions for report
 def report(args):
-    if args.report_type == 'inventory':
-        report_inventory(args)
+    if args.report_type == 'ledger':
+        report_ledger(args)
+    elif args.report_type == 'inventory':
+        report_inventory(args)    
     elif args.report_type == 'revenue':
         report_revenue(args)
     elif args.report_type == 'profit':
@@ -51,7 +60,6 @@ def main():
     # subparser for buying a product
     buy_parser = subparsers.add_parser('buy', help='Buy a product.')
     buy_parser.add_argument('--name', required=True, help='Product name')
-    buy_parser.add_argument('--buy_amount', type=int, default=1, required=True, help='Amount of products to buy')
     buy_parser.add_argument('--buy_date', type=str, help="Product buy date (format: YYYY-MM-DD)")
     buy_parser.add_argument('--buy_price', type=float, required=True, help='Product buy price')
     buy_parser.add_argument('--expiration_date', required=True, help='Product expiration date (format: YYYY-MM-DD)')
@@ -60,22 +68,26 @@ def main():
     # subparser for selling a product
     sell_parser = subparsers.add_parser('sell', help='Sell a product')
     sell_parser.add_argument('--id', required=True, help='Id of the product to sell')
-    sell_parser.add_argument('--sell_amount', type=int, default=1, required=True, help='Amount of products to sell')
     sell_parser.add_argument('--sell_date', type=str, help='Product sell date (format: YYYY-MM-DD)')
     sell_parser.add_argument('--sell_price', type=float, required=True, help='Product sell price')
     sell_parser.set_defaults(func=sell)
 
     # subparser for reports
-    report_parser = subparsers.add_parser('report', help='Generate reports of inventory, revenue and profit.')
-    report_parser.add_argument('report_type', choices=['inventory', 'revenue', 'profit'], help='Type of report to generate')
+    report_parser = subparsers.add_parser('report', help='Generate reports of ledger, inventory, revenue and profit.')
+    report_parser.add_argument('report_type', choices=['ledger', 'inventory', 'revenue', 'profit'], help='Type of report to generate')
     report_parser.add_argument('--date', required=False, type=str, help='Time option for reports (YYYY-MM-DD) until current date')
-
     report_parser.set_defaults(func=report)
 
     # subparser to set the current date
     set_date_parser = subparsers.add_parser('set_date', help='Set the current date')
     set_date_parser.add_argument('current_date', type=str, help='Set the current date (format: YYYY-MM-DD)')
     set_date_parser.set_defaults(func=current_date)
+
+#    # exporting to json format
+#    export_parser = subparsers.add_parser('export', help='Export the dataframes into json files')
+#    export_parser.add_argument('data_type', choices=['purchases', 'sales'], help=('Which data do you wish to export: purchases or sales?'))
+#    export_parser.add_argument('--jason', dest='json_path', required=True, help='Export the file to json format.')
+#    parser.add_argument(func=export_to_json)
 
     args = parser.parse_args()
     
